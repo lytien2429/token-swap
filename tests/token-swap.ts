@@ -94,6 +94,10 @@ describe("token-swap", () => {
     let userMoveATAInfo = await moveToken.getOrCreateAssociatedAccountInfo(userTest.publicKey);
     userMoveATA = userMoveATAInfo.address;
     console.log(`User MOVE ATA = ${userMoveATA.toBase58()}`)
+
+    const userMoveBalanceBefore = await moveToken.getAccountInfo(userMoveATA);
+    const userSolBalanceBefore = await connection.getBalance(userTest.publicKey);
+
     const inputAmount = new anchor.BN(1e8); // 0.1 SOL
     let tx = await program.methods
       .swap(inputAmount)
@@ -110,5 +114,17 @@ describe("token-swap", () => {
       .signers([userTest])
       .rpc();
     console.log(`Swap txhash = ${tx}`);
+
+    const userMoveBalanceAfter = await moveToken.getAccountInfo(userMoveATA);
+    const userSolBalanceAfter = await connection.getBalance(userTest.publicKey);
+    
+    console.log("userMoveBalanceBefore.amount.toNumber()=", userMoveBalanceBefore.amount.toNumber());
+    console.log("userMoveBalanceAfter.amount.toNumber()=", userMoveBalanceAfter.amount.toNumber());
+    console.log("userSolBalanceBefore=", userSolBalanceBefore);
+    console.log("userSolBalanceAfter=", userSolBalanceAfter);
+    
+
+    assert(userMoveBalanceAfter.amount.toNumber() - userMoveBalanceBefore.amount.toNumber() == 1e9);
+    assert(userSolBalanceBefore - userSolBalanceAfter == 1e8);
   })
 });
