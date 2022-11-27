@@ -4,7 +4,7 @@ use anchor_lang::solana_program::system_program;
 
 use anchor_spl::token::{self, TokenAccount, Transfer};
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("2uwqgDaHuyyUx36e9LSaxRQStDfeMH1SrLQGo3xLSBWV");
 
 #[program]
 pub mod token_swap {
