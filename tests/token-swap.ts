@@ -22,7 +22,7 @@ describe("token-swap", () => {
   );
 
   // BN7T42mAa6VQdcff8ghpecGvRQndxSWpepi7iamFRWXu
-  const solReverseAccount = anchor.web3.Keypair.fromSecretKey(
+  const solReserveAccount = anchor.web3.Keypair.fromSecretKey(
     Uint8Array.from([200, 68, 121, 178, 95, 29, 207, 227, 65, 82, 106, 97, 27, 15, 56, 164, 65, 3, 124, 66, 14, 136, 213, 166, 123, 108, 228, 42, 166, 10, 67, 151, 153, 253, 91, 189, 147, 10, 236, 41, 151, 2, 90, 223, 234, 141, 208, 128, 194, 93, 32, 61, 0, 6, 174, 198, 12, 211, 175, 159, 220, 131, 230, 244])
   );
 
@@ -63,30 +63,52 @@ describe("token-swap", () => {
 
     poolMoveAccount = await moveToken.createAccount(swapAuthority);
     console.log(`Pool MOVE account = ${poolMoveAccount.toBase58()}`);
-    
+
     await moveToken.mintTo(
       poolMoveAccount,
       payer,
       [],
-      DEFAULT_POOL_MOVE_SUPPLY * (10**DEFAULT_TOKEN_DECIMALS),
+      DEFAULT_POOL_MOVE_SUPPLY * (10 ** DEFAULT_TOKEN_DECIMALS),
     );
     console.log("Minted 1_000_000 token MOVE in pool");
-    
+
     const initPrice = new anchor.BN(INIT_PRICE);
 
     const initPoolTx = await program.methods
-    .initializePool(initPrice)
-    .accounts({
-      poolState: poolStateAccount.publicKey,
-      solReserveAccount: solReverseAccount.publicKey,
-      mintReserveAccount: poolMoveAccount,
-      tokenProgram: TOKEN_PROGRAM_ID,
-      systemProgram: SystemProgram.programId,
-    })
-    .signers([poolStateAccount])
-    .preInstructions([await program.account.poolState.createInstruction(poolStateAccount)])
-    .rpc();
+      .initializePool(initPrice)
+      .accounts({
+        poolState: poolStateAccount.publicKey,
+        solReserveAccount: solReserveAccount.publicKey,
+        mintReserveAccount: poolMoveAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([poolStateAccount])
+      .preInstructions([await program.account.poolState.createInstruction(poolStateAccount)])
+      .rpc();
 
     console.log(`Init pool txhash = ${initPoolTx}`);
   });
+
+  it("Test swap SOL to MOVE", async () => {
+    let userMoveATAInfo = await moveToken.getOrCreateAssociatedAccountInfo(userTest.publicKey);
+    userMoveATA = userMoveATAInfo.address;
+    console.log(`User MOVE ATA = ${userMoveATA.toBase58()}`)
+    const inputAmount = new anchor.BN(1e8); // 0.1 SOL
+    let tx = await program.methods
+      .swap(inputAmount)
+      .accounts({
+        poolState: poolStateAccount.publicKey,
+        swapAuthority: swapAuthority,
+        userAuthority: userTest.publicKey,
+        swapSolAccount: solReserveAccount.publicKey,
+        swapMintAccount: poolMoveAccount,
+        userMintAta: userMoveATA,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([userTest])
+      .rpc();
+    console.log(`Swap txhash = ${tx}`);
+  })
 });
