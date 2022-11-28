@@ -9,12 +9,12 @@ const Description = () => {
             <div className="hero">
                 <div className="text-center hero-content">
                     <div>
-                        <h1 className="mb-5 text-5xl font-bold">
-                            SOLANA SWAP
+                        <h1 className="mb-2 text-4xl font-bold">
+                            SOLANA TOKEN SWAP
                         </h1>
 
                         <div className="max-w-md">
-                            <p className="mb-5">Program only support on Testnet</p>
+                            <p className="mb-2">Program only support on Testnet</p>
                             {publicKey
                                 ? (
                                     <>Your address: {publicKey.toBase58()}</>
