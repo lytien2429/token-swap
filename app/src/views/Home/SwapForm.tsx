@@ -57,6 +57,11 @@ const SwapForm: FunctionComponent<ISwapFormProps> = (props) => {
         .transaction();
       let txHash = await sendTransaction(tx, connection);
       console.log(`txHashSwap: ${txHash}`);
+      notify({
+        type: "success",
+        message: "Swap successful!",
+        txid: txHash,
+      });
 
     } catch (error: any) {
       console.log('error', `${error?.message}`);
@@ -117,7 +122,16 @@ const SwapForm: FunctionComponent<ISwapFormProps> = (props) => {
         </div>
       </div>
 
-      <div className="flex justify-center mt-4">
+      <div>
+        <label htmlFor="outputMint" className="block text-sm mt-2">
+          Output Amount: {Number.isNaN(inputAmount)?"":10 * inputAmount + " MOVE"}
+        </label>
+        <label htmlFor="outputMint" className="block text-sm">
+          Price: 1 SOL = 10 MOVE
+        </label>
+      </div>
+
+      <div className="flex justify-center mt-2">
         <button
           type="button"
           disabled={Number.isNaN(inputAmount) || inputAmount <= 0}
