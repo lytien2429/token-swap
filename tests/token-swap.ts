@@ -115,6 +115,10 @@ describe("token-swap", () => {
       .rpc();
     console.log(`Swap txhash = ${tx}`);
 
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    await sleep(1000);
+
+
     const userMoveBalanceAfter = await moveToken.getAccountInfo(userMoveATA);
     const userSolBalanceAfter = await connection.getBalance(userTest.publicKey);
     
